@@ -1,5 +1,5 @@
-import authRoute from './auth.routes';
+import authRoute from "./auth.routes";
 
-export const index = {
-    authRoute
-}
+export const indexRoutes = {
+  authRoute,
+};

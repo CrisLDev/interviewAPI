@@ -4,7 +4,7 @@ import { getMe, login, register } from "../controllers/auth";
 
 const router = Router();
 
-router.route("/users").post(register);
+router.route("/items").get(register);
 
 router.route("/auth").post(login).get(validateToken, getMe);
 
