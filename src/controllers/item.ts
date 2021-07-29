@@ -5,14 +5,15 @@ import Item from "../models/Item";
 //@desc     Create new item
 //@access   Private
 export const createItem: RequestHandler = async (req, res) => {
-  const { name, description, imgUrl, stock } = req.body;
+  const { name, description, stock } = req.body;
 
   try {
     const newItem = new Item({
       name,
       description,
-      imgUrl,
+      imgUrl: req.file?.path,
       stock,
+      userCreator: req.userId,
     });
     const itemSaved = await newItem.save();
     return res.status(200).json(itemSaved);
@@ -28,7 +29,7 @@ export const createItem: RequestHandler = async (req, res) => {
 //@access   Public
 export const getItems: RequestHandler = async (req, res) => {
   try {
-    const items = Item.find().sort({ created_At: -1 });
+    const items = await Item.find().sort({ created_At: -1 });
     return res.status(200).json(items);
   } catch (err) {
     return res
@@ -42,7 +43,22 @@ export const getItems: RequestHandler = async (req, res) => {
 //@access   Public
 export const getItemById: RequestHandler = async (req, res) => {
   try {
-    const item = Item.findById(req.params.id);
+    const item = await Item.findById(req.params.id);
+    return res.status(200).json(item);
+  } catch (err) {
+    return res
+      .status(400)
+      .json({ msg: "A ocurrido un error con tu petición." });
+  }
+};
+
+//@Route    Get api/items/userloged
+//@desc     Get specific items for user Id
+//@access   Private
+export const getItemsByUserLogedId: RequestHandler = async (req, res) => {
+  try {
+    console.log(req.userId)
+    const item = await Item.find({userCreator: req.userId});
     return res.status(200).json(item);
   } catch (err) {
     return res
@@ -58,19 +74,25 @@ export const updateItemById: RequestHandler = async (req, res) => {
   const { name, description, imgUrl, stock } = req.body;
 
   try {
-    const item = Item.findById(req.params.id);
+    const item = await Item.findById(req.params.id);
     if (!item) {
       res.status(400).json({ msg: "Item no existe." });
     }
     const itemToUpdate = {
       name,
       description,
-      imgUrl,
       stock,
     };
-    const itemUpdated = Item.findByIdAndUpdate(req.params.id, itemToUpdate, {
-      new: true,
-    });
+    if (req.file?.path) {
+      Object.assign(itemToUpdate, { imgUrl: req.file?.path });
+    }
+    const itemUpdated = await Item.findByIdAndUpdate(
+      req.params.id,
+      itemToUpdate,
+      {
+        new: true,
+      }
+    );
     return res.status(200).json(itemUpdated);
   } catch (err) {
     return res

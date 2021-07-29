@@ -4,7 +4,7 @@ import User, { IUser } from "../models/User";
 import jwt from "jsonwebtoken";
 
 function createToken(user: IUser) {
-  return jwt.sign({ id: user.id, email: user.email }, SECRET, {
+  return jwt.sign({ _id: user._id, email: user.email }, SECRET, {
     expiresIn: 86400,
   });
 }
@@ -91,10 +91,8 @@ export const login: RequestHandler = async (req, res) => {
 //@desc     Get Personal Info of Logged User
 //@access   Public
 export const getMe: RequestHandler = async (req, res) => {
-  // Ayer me quede por aqui, el error esta en que ya que mandamos a buscar el ussuario con el findbyid no exister el req.params en la ruta so debemos crear un parametro en req como hicmos ne la nueva hera opara guardar la id del usuario
-
   try {
-    const user = User.findById(req.userId);
+    const user = await User.findById(req.userId);
     if (!user) {
       return res.status(400).json({ msg: "There is no user" });
     }

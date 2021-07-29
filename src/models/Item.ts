@@ -1,5 +1,7 @@
 import { Schema, model, Document } from "mongoose";
 
+const ObjectId = Schema.Types.ObjectId;
+
 const itemSchema = new Schema(
   {
     name: {
@@ -19,13 +21,17 @@ const itemSchema = new Schema(
     },
     sold: {
       type: String,
-      required: true,
       trim: true,
     },
     imgUrl: {
       type: String,
       required: true,
       trim: true,
+    },
+    userCreator: {
+      type: ObjectId,
+      ref: "Item",
+      required: true,
     },
   },
   { timestamps: true, versionKey: false }
